@@ -139,8 +139,8 @@ def user_register(request):
 
 def send_telegram_message(message_text):
     """Send message to Telegram bot"""
-    bot_token = os.environ['TELEGRAM_BOT_TOKEN']
-    chat_id = os.environ['TELEGRAM_CHAT_ID']
+    bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
+    chat_id = os.environ.get('TELEGRAM_CHAT_ID')
     
     if not bot_token or not chat_id:
         return False
