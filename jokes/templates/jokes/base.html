@@ -217,7 +217,11 @@
                         <li><a href="{% url 'jokes:home' %}">Главная</a></li>
                         <li><a href="{% url 'jokes:list' %}">Все анекдоты</a></li>
                         <li><a href="{% url 'jokes:random' %}" id="random-joke">Случайный</a></li>
-                        <li><a href="/admin/">Админ</a></li>
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'jokes:logout' %}">Выйти ({{ user.username }})</a></li>
+                        {% else %}
+                            <li><a href="{% url 'jokes:login' %}">Войти</a></li>
+                        {% endif %}
                     </ul>
                 </nav>
             </div>
@@ -234,6 +238,9 @@
     <footer>
         <div class="container">
             <p>&copy; 2025 Лаба web-программирование - Лучшие шутки и анекдоты</p>
+            {% if user.is_staff %}
+                <p><a href="/admin/" style="color: #ccc;">Панель администратора</a></p>
+            {% endif %}
         </div>
     </footer>
 

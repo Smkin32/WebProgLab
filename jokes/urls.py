@@ -10,4 +10,6 @@ urlpatterns = [
     path('joke/<int:joke_id>/', views.joke_detail, name='detail'),
     path('random/', views.random_joke, name='random'),
     path('rate/<int:joke_id>/', views.rate_joke, name='rate'),
+    path('login/', views.user_login, name='login'),
+    path('logout/', views.user_logout, name='logout'),
 ]

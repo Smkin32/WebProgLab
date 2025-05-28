@@ -1,8 +1,11 @@
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib import messages
 from .models import Joke
 import random
 
@@ -84,3 +87,27 @@ def rate_joke(request, joke_id):
         return JsonResponse({'rating': joke.rating})
     
     return JsonResponse({'error': 'Invalid request'})
+
+def user_login(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, f'Добро пожаловать, {username}!')
+                return redirect('jokes:home')
+            else:
+                messages.error(request, 'Неверное имя пользователя или пароль.')
+        else:
+            messages.error(request, 'Неверное имя пользователя или пароль.')
+    
+    form = AuthenticationForm()
+    return render(request, 'jokes/login.html', {'form': form})
+
+def user_logout(request):
+    logout(request)
+    messages.success(request, 'Вы успешно вышли из системы.')
+    return redirect('jokes:home')

@@ -1,0 +1,74 @@
+
+{% extends 'jokes/base.html' %}
+
+{% block title %}Вход - Анекдоты{% endblock %}
+
+{% block content %}
+<div class="joke-card" style="max-width: 500px; margin: 2rem auto;">
+    <h2 style="text-align: center; margin-bottom: 2rem;">Вход в систему</h2>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding: 1rem; margin-bottom: 1rem; border-radius: 5px; 
+                        background-color: {% if message.tags == 'error' %}#f8d7da; color: #721c24; border: 1px solid #f5c6cb;{% else %}#d4edda; color: #155724; border: 1px solid #c3e6cb;{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 1rem;">
+            <label for="{{ form.username.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">
+                Имя пользователя:
+            </label>
+            {{ form.username }}
+            {% if form.username.errors %}
+                <div style="color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem;">
+                    {{ form.username.errors }}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <label for="{{ form.password.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">
+                Пароль:
+            </label>
+            {{ form.password }}
+            {% if form.password.errors %}
+                <div style="color: #dc3545; font-size: 0.875rem; margin-top: 0.25rem;">
+                    {{ form.password.errors }}
+                </div>
+            {% endif %}
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 1.1rem;">
+            Войти
+        </button>
+    </form>
+    
+    <div style="text-align: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee;">
+        <p style="color: #666;">
+            Используйте учетную запись суперпользователя для входа
+        </p>
+    </div>
+</div>
+
+<style>
+    input[type="text"], input[type="password"] {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+    
+    input[type="text"]:focus, input[type="password"]:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+</style>
+{% endblock %}
