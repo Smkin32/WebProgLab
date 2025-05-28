@@ -141,24 +141,54 @@
 
         .rating {
             display: flex;
-            gap: 0.5rem;
+            gap: 1rem;
             align-items: center;
+            background: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
         }
 
-        .rating button {
-            background: none;
-            border: 1px solid #ddd;
-            padding: 0.3rem 0.6rem;
-            border-radius: 3px;
+        .rating-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .rating-btn {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
         }
 
-        .rating .up:hover {
+        .rating-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .rating-btn.like {
+            border-color: #28a745;
+            color: #28a745;
+        }
+
+        .rating-btn.like:hover {
             background: #28a745;
             color: white;
         }
 
-        .rating .down:hover {
+        .rating-btn.dislike {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .rating-btn.dislike:hover {
             background: #dc3545;
             color: white;
         }
@@ -229,6 +259,11 @@
         </div>
     </header>
 
+    <!-- WebSocket Connection Status -->
+    <div id="connectionStatus" class="connection-status connecting" style="display: none;">
+        <span id="connectionText">Подключение...</span>
+    </div>
+
     <main>
         <div class="container">
             {% block content %}
@@ -260,22 +295,7 @@
     </div>
 
     <script>
-        function rateJoke(jokeId, action) {
-            fetch(`/rate/${jokeId}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                },
-                body: `action=${action}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.rating !== undefined) {
-                    document.querySelector(`#rating-${jokeId}`).textContent = data.rating;
-                }
-            });
-        }
+        // Rating functions are now in main.js
 
         function showRandomJoke() {
             fetch('/random/')

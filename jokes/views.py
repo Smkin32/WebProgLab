@@ -86,13 +86,19 @@ def rate_joke(request, joke_id):
         joke = get_object_or_404(Joke, id=joke_id)
         action = request.POST.get('action')
         
-        if action == 'up':
+        if action == 'like':
+            joke.likes += 1
             joke.rating += 1
-        elif action == 'down':
+        elif action == 'dislike':
+            joke.dislikes += 1
             joke.rating -= 1
         
         joke.save()
-        return JsonResponse({'rating': joke.rating})
+        return JsonResponse({
+            'rating': joke.rating,
+            'likes': joke.likes,
+            'dislikes': joke.dislikes
+        })
     
     return JsonResponse({'error': 'Invalid request'})
 
