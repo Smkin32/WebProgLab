@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'channels',
     'jokes',
 ]
 
@@ -75,13 +74,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'django_project.wsgi.application'
-ASGI_APPLICATION = 'django_project.asgi.application'
-
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-    },
-}
 
 
 # Database

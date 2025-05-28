@@ -31,8 +31,6 @@ class Joke(models.Model):
     content = models.TextField()
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='general')
     rating = models.IntegerField(default=0)
-    likes = models.IntegerField(default=0)
-    dislikes = models.IntegerField(default=0)
     created_at = models.DateTimeField(default=timezone.now)
     views = models.IntegerField(default=0)
     
