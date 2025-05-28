@@ -7,11 +7,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .models import Joke, ContactMessage
-from .forms import ContactForm
+from .models import Joke
 import random
-import requests
-import os
 
 def home(request):
     # Get latest jokes
@@ -136,59 +133,3 @@ def user_register(request):
     
     form = UserCreationForm()
     return render(request, 'jokes/register.html', {'form': form})
-
-def send_telegram_message(message_text):
-    """Send message to Telegram bot"""
-    bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
-    chat_id = os.environ.get('TELEGRAM_CHAT_ID')
-    
-    if not bot_token or not chat_id:
-        return False
-    
-    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
-    data = {
-        'chat_id': chat_id,
-        'text': message_text,
-        'parse_mode': 'HTML'
-    }
-    
-    try:
-        response = requests.post(url, data=data)
-        return response.status_code == 200
-    except Exception as e:
-        print(f"Error sending Telegram message: {e}")
-        return False
-
-def contact(request):
-    if request.method == 'POST':
-        form = ContactForm(request.POST)
-        if form.is_valid():
-            contact_message = form.save()
-            
-            # Format message for Telegram
-            telegram_message = f"""
-<b>🔔 Новое сообщение с сайта анекдотов</b>
-
-<b>Имя:</b> {contact_message.name}
-<b>Email:</b> {contact_message.email}
-<b>Тема:</b> {contact_message.subject}
-
-<b>Сообщение:</b>
-{contact_message.message}
-
-<b>Дата:</b> {contact_message.created_at.strftime('%d.%m.%Y %H:%M')}
-            """
-            
-            # Send to Telegram
-            if send_telegram_message(telegram_message):
-                contact_message.is_sent = True
-                contact_message.save()
-                messages.success(request, 'Ваше сообщение успешно отправлено!')
-            else:
-                messages.warning(request, 'Сообщение сохранено, но не удалось отправить уведомление.')
-            
-            return redirect('jokes:contact')
-    else:
-        form = ContactForm()
-    
-    return render(request, 'jokes/contact.html', {'form': form})
