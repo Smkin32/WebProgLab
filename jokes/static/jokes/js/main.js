@@ -10,6 +10,7 @@ function initializeWebSocket() {
     
     socket.onopen = function(e) {
         console.log('WebSocket connection established');
+        updateConnectionStatus('connected');
     };
     
     socket.onmessage = function(e) {
@@ -21,45 +22,42 @@ function initializeWebSocket() {
     
     socket.onclose = function(e) {
         console.log('WebSocket connection closed');
+        updateConnectionStatus('disconnected');
         // Attempt to reconnect after 3 seconds
         setTimeout(initializeWebSocket, 3000);
     };
     
     socket.onerror = function(e) {
         console.error('WebSocket error:', e);
+        updateConnectionStatus('connecting');
     };
 }
 
-function updateRatingDisplay(jokeId, newRating, action) {
-    const ratingElement = document.querySelector(`#rating-${jokeId}`);
-    const likesElement = document.querySelector(`#likes-${jokeId}`);
-    const dislikesElement = document.querySelector(`#dislikes-${jokeId}`);
-    
-    if (ratingElement) {
-        ratingElement.textContent = newRating;
-        
-        // Add visual feedback
-        ratingElement.style.transform = 'scale(1.2)';
-        ratingElement.style.color = action === 'like' ? '#28a745' : '#dc3545';
-        
-        setTimeout(() => {
-            ratingElement.style.transform = 'scale(1)';
-            ratingElement.style.color = '#333';
-        }, 300);
+function updateConnectionStatus(status) {
+    let statusEl = document.getElementById('connection-status');
+    if (!statusEl) {
+        statusEl = document.createElement('div');
+        statusEl.id = 'connection-status';
+        statusEl.className = 'connection-status';
+        document.body.appendChild(statusEl);
     }
     
-    // Update individual like/dislike counters if they exist
-    if (action === 'like' && likesElement) {
-        const currentLikes = parseInt(likesElement.textContent) || 0;
-        likesElement.textContent = currentLikes + 1;
-    } else if (action === 'dislike' && dislikesElement) {
-        const currentDislikes = parseInt(dislikesElement.textContent) || 0;
-        dislikesElement.textContent = currentDislikes + 1;
+    statusEl.className = `connection-status ${status}`;
+    switch(status) {
+        case 'connected':
+            statusEl.textContent = '🟢 Подключено';
+            break;
+        case 'disconnected':
+            statusEl.textContent = '🔴 Отключено';
+            break;
+        case 'connecting':
+            statusEl.textContent = '🟡 Подключение...';
+            break;
     }
 }
 
 function rateJoke(jokeId, action) {
-    // Send rating through WebSocket for real-time updates
+    // Send rating via WebSocket if connected
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({
             'action': action,
@@ -70,21 +68,49 @@ function rateJoke(jokeId, action) {
         fetch(`/rate/${jokeId}/`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
             },
-            body: `action=${action}`
+            body: JSON.stringify({
+                'action': action
+            })
         })
         .then(response => response.json())
         .then(data => {
-            if (data.rating !== undefined) {
-                updateRatingDisplay(jokeId, data.rating, action);
+            if (data.success) {
+                updateRatingDisplay(jokeId, data.new_rating, action);
             }
         })
         .catch(error => {
             console.error('Error rating joke:', error);
         });
     }
+}
+
+function updateRatingDisplay(jokeId, newRating, action) {
+    const ratingEl = document.querySelector(`[data-joke-id="${jokeId}"] .joke-rating`);
+    if (ratingEl) {
+        ratingEl.textContent = `Рейтинг: ${newRating}`;
+        ratingEl.classList.add('rating-updated');
+        setTimeout(() => {
+            ratingEl.classList.remove('rating-updated');
+        }, 600);
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 
 function showRandomJoke() {
@@ -112,6 +138,7 @@ function closeRandomJoke() {
 
 // Initialize WebSocket when page loads
 document.addEventListener('DOMContentLoaded', function() {
+    updateConnectionStatus('connecting');
     initializeWebSocket();
 });
 
@@ -119,6 +146,6 @@ document.addEventListener('DOMContentLoaded', function() {
 window.onclick = function(event) {
     const modal = document.getElementById('randomJokeModal');
     if (event.target === modal) {
-        closeRandomJoke();
+        modal.style.display = 'none';
     }
 }

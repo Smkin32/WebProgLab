@@ -28,4 +28,13 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python manage.py runserver 0.0.0.0:3000"
+args = "python manage.py runserver 0.0.0.0:3000 --settings=django_project.settings"
+
+[[workflows.workflow]]
+name = "Run with WebSocket"
+author = 42010173
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "daphne -b 0.0.0.0 -p 3000 django_project.asgi:application"
