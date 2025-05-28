@@ -65,14 +65,18 @@ def joke_detail(request, joke_id):
     return render(request, 'jokes/detail.html', context)
 
 def random_joke(request):
-    joke = Joke.objects.order_by('?').first()
-    if joke:
-        return JsonResponse({
-            'id': joke.id,
-            'content': joke.content,
-            'category': joke.get_category_display(),
-        })
-    return JsonResponse({'error': 'No jokes found'})
+    try:
+        joke = Joke.objects.order_by('?').first()
+        if joke:
+            return JsonResponse({
+                'id': joke.id,
+                'content': joke.content,
+                'category': joke.get_category_display(),
+                'title': joke.title or f'Анекдот #{joke.id}',
+            })
+        return JsonResponse({'error': 'Анекдоты не найдены'})
+    except Exception as e:
+        return JsonResponse({'error': 'Ошибка при загрузке анекдота'})
 
 def rate_joke(request, joke_id):
     if request.method == 'POST':
