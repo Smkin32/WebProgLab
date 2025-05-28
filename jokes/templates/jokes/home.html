@@ -13,16 +13,15 @@
 
 {% if messages %}
     {% for message in messages %}
-        <div style="padding: 1rem; margin-bottom: 1rem; border-radius: 5px; 
-                    background-color: {% if message.tags == 'error' %}#f8d7da; color: #721c24; border: 1px solid #f5c6cb;{% else %}#d4edda; color: #155724; border: 1px solid #c3e6cb;{% endif %}">
+        <div class="message {% if message.tags == 'error' %}message-error{% else %}message-success{% endif %}">
             {{ message }}
         </div>
     {% endfor %}
 {% endif %}
 
 {% if joke_of_day %}
-<div class="joke-card" style="border: 2px solid #667eea;">
-    <h2 style="color: #667eea; margin-bottom: 1rem;">🎭 Анекдот дня</h2>
+<div class="joke-card joke-of-day">
+    <h2 class="joke-of-day-title">🎭 Анекдот дня</h2>
     <div class="joke-content">{{ joke_of_day.content|linebreaks }}</div>
     <div class="joke-actions">
         {% csrf_token %}
@@ -69,7 +68,7 @@
     </div>
 {% endif %}
 
-<div style="text-align: center; margin-top: 2rem;">
+<div class="home-footer">
     <a href="{% url 'jokes:list' %}" class="btn btn-primary">Посмотреть все анекдоты</a>
 </div>
 {% endblock %}
