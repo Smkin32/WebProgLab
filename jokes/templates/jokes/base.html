@@ -260,20 +260,45 @@
     </div>
 
     <script>
+        // Get CSRF token from cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
         function rateJoke(jokeId, action) {
+            const csrftoken = getCookie('csrftoken');
+            
             fetch(`/rate/${jokeId}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    'X-CSRFToken': csrftoken
                 },
                 body: `action=${action}`
             })
             .then(response => response.json())
             .then(data => {
                 if (data.rating !== undefined) {
-                    document.querySelector(`#rating-${jokeId}`).textContent = data.rating;
+                    // Update all rating displays for this joke across the page
+                    const ratingElements = document.querySelectorAll(`#rating-${jokeId}`);
+                    ratingElements.forEach(element => {
+                        element.textContent = data.rating;
+                    });
                 }
+            })
+            .catch(error => {
+                console.error('Error rating joke:', error);
             });
         }
 
@@ -307,6 +332,34 @@
                 closeRandomJoke();
             }
         }
+
+        // Update all visible joke ratings every 30 seconds
+        function updateAllRatings() {
+            const ratingElements = document.querySelectorAll('[id^="rating-"]');
+            const jokeIds = Array.from(ratingElements).map(el => el.id.replace('rating-', ''));
+            
+            // Remove duplicates
+            const uniqueJokeIds = [...new Set(jokeIds)];
+            
+            uniqueJokeIds.forEach(jokeId => {
+                fetch(`/joke/${jokeId}/rating/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.rating !== undefined) {
+                        const ratingElems = document.querySelectorAll(`#rating-${jokeId}`);
+                        ratingElems.forEach(elem => {
+                            elem.textContent = data.rating;
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating rating:', error);
+                });
+            });
+        }
+
+        // Update ratings every 30 seconds
+        setInterval(updateAllRatings, 30000);
     </script>
 </body>
 </html>

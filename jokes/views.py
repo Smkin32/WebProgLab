@@ -96,6 +96,10 @@ def rate_joke(request, joke_id):
     
     return JsonResponse({'error': 'Invalid request'})
 
+def get_joke_rating(request, joke_id):
+    joke = get_object_or_404(Joke, id=joke_id)
+    return JsonResponse({'rating': joke.rating})
+
 def user_login(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
