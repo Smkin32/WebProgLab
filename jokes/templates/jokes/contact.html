@@ -27,18 +27,20 @@
     <form method="post" style="display: flex; flex-direction: column; gap: 1.5rem;">
         {% csrf_token %}
         
-        <div style="display: flex; gap: 1rem;">
-            <div style="flex: 1;">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 250px;">
                 <label for="{{ form.name.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #333;">
                     Ваше имя *
                 </label>
-                {{ form.name }}
+                <input type="text" name="name" id="{{ form.name.id_for_label }}" 
+                       placeholder="Ваше имя" class="form-control" required>
             </div>
-            <div style="flex: 1;">
+            <div style="flex: 1; min-width: 250px;">
                 <label for="{{ form.email.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #333;">
                     Email *
                 </label>
-                {{ form.email }}
+                <input type="email" name="email" id="{{ form.email.id_for_label }}" 
+                       placeholder="Ваш email" class="form-control" required>
             </div>
         </div>
 
@@ -46,17 +48,30 @@
             <label for="{{ form.subject.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #333;">
                 Тема сообщения *
             </label>
-            {{ form.subject }}
+            <input type="text" name="subject" id="{{ form.subject.id_for_label }}" 
+                   placeholder="Тема сообщения" class="form-control" required>
         </div>
 
         <div>
             <label for="{{ form.message.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #333;">
                 Ваше сообщение *
             </label>
-            {{ form.message }}
+            <textarea name="message" id="{{ form.message.id_for_label }}" 
+                      placeholder="Ваше сообщение" rows="5" class="form-control" required></textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary" style="padding: 0.75rem; font-size: 1rem; margin-top: 1rem;">
+        <button type="submit" style="
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(102, 126, 234, 0.4)'"
+           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
             📤 Отправить сообщение
         </button>
     </form>
@@ -75,6 +90,7 @@
         border-radius: 5px;
         font-size: 1rem;
         transition: border-color 0.3s;
+        box-sizing: border-box;
     }
     
     .form-control:focus {
@@ -85,6 +101,12 @@
     
     .form-control:invalid {
         border-color: #dc3545;
+    }
+
+    @media (max-width: 600px) {
+        .form-control {
+            font-size: 16px; /* Prevents zoom on iOS */
+        }
     }
 </style>
 {% endblock %}
