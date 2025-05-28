@@ -1,0 +1,52 @@
+
+{% extends 'jokes/base.html' %}
+
+{% block title %}{{ joke.title|default:"Анекдот" }} - Анекдоты{% endblock %}
+
+{% block content %}
+<div class="joke-card">
+    <div class="joke-meta">
+        <span class="category-tag">{{ joke.get_category_display }}</span>
+        <span>{{ joke.created_at|date:"d.m.Y H:i" }} | Просмотров: {{ joke.views }}</span>
+    </div>
+    
+    {% if joke.title %}
+        <h1>{{ joke.title }}</h1>
+    {% endif %}
+    
+    <div class="joke-content" style="font-size: 1.2rem;">{{ joke.content|linebreaks }}</div>
+    
+    <div class="joke-actions">
+        {% csrf_token %}
+        <div class="rating">
+            <button onclick="rateJoke({{ joke.id }}, 'up')" class="up">👍 Нравится</button>
+            <span id="rating-{{ joke.id }}">{{ joke.rating }}</span>
+            <button onclick="rateJoke({{ joke.id }}, 'down')" class="down">👎 Не нравится</button>
+        </div>
+        <a href="{% url 'jokes:list' %}" class="btn btn-secondary">← Назад к списку</a>
+        <a href="{% url 'jokes:random' %}" class="btn btn-primary">Случайный анекдот</a>
+    </div>
+</div>
+
+{% if related_jokes %}
+<h2>Похожие анекдоты</h2>
+{% for related in related_jokes %}
+<div class="joke-card">
+    <div class="joke-meta">
+        <span class="category-tag">{{ related.get_category_display }}</span>
+        <span>{{ related.created_at|date:"d.m.Y H:i" }}</span>
+    </div>
+    
+    {% if related.title %}
+        <h3>{{ related.title }}</h3>
+    {% endif %}
+    
+    <div class="joke-content">{{ related.get_short_content|linebreaks }}</div>
+    
+    <div class="joke-actions">
+        <a href="{% url 'jokes:detail' related.id %}" class="btn btn-primary">Читать полностью</a>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}

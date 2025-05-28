@@ -1,0 +1,71 @@
+
+{% extends 'jokes/base.html' %}
+
+{% block title %}Все анекдоты{% endblock %}
+
+{% block content %}
+<h1>Все анекдоты</h1>
+
+<form method="get" class="search-form">
+    <input type="text" name="search" placeholder="Поиск анекдотов..." value="{{ search }}">
+    <select name="category">
+        <option value="">Все категории</option>
+        {% for cat_value, cat_name in categories %}
+            <option value="{{ cat_value }}" {% if category == cat_value %}selected{% endif %}>{{ cat_name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary">Найти</button>
+    {% if search or category %}
+        <a href="{% url 'jokes:list' %}" class="btn btn-secondary">Сбросить</a>
+    {% endif %}
+</form>
+
+{% if page_obj %}
+    {% for joke in page_obj %}
+    <div class="joke-card">
+        <div class="joke-meta">
+            <span class="category-tag">{{ joke.get_category_display }}</span>
+            <span>{{ joke.created_at|date:"d.m.Y H:i" }} | Просмотров: {{ joke.views }}</span>
+        </div>
+        
+        {% if joke.title %}
+            <h3>{{ joke.title }}</h3>
+        {% endif %}
+        
+        <div class="joke-content">{{ joke.get_short_content|linebreaks }}</div>
+        
+        <div class="joke-actions">
+            {% csrf_token %}
+            <div class="rating">
+                <button onclick="rateJoke({{ joke.id }}, 'up')" class="up">👍</button>
+                <span id="rating-{{ joke.id }}">{{ joke.rating }}</span>
+                <button onclick="rateJoke({{ joke.id }}, 'down')" class="down">👎</button>
+            </div>
+            <a href="{% url 'jokes:detail' joke.id %}" class="btn btn-primary">Читать полностью</a>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1{% if search %}&search={{ search }}{% endif %}{% if category %}&category={{ category }}{% endif %}">&laquo; первая</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if category %}&category={{ category }}{% endif %}">предыдущая</a>
+        {% endif %}
+
+        <span class="current">
+            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if category %}&category={{ category }}{% endif %}">следующая</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if category %}&category={{ category }}{% endif %}">последняя &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+{% else %}
+    <div class="joke-card">
+        <p>Анекдоты не найдены.</p>
+    </div>
+{% endif %}
+{% endblock %}

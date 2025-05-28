@@ -1,0 +1,62 @@
+
+{% extends 'jokes/base.html' %}
+
+{% block content %}
+<div style="text-align: center; margin-bottom: 2rem;">
+    <h1>Добро пожаловать на Анекдоты.ru!</h1>
+    <p>Лучшие шутки и анекдоты на любой вкус</p>
+</div>
+
+{% if joke_of_day %}
+<div class="joke-card" style="border: 2px solid #667eea;">
+    <h2 style="color: #667eea; margin-bottom: 1rem;">🎭 Анекдот дня</h2>
+    <div class="joke-content">{{ joke_of_day.content|linebreaks }}</div>
+    <div class="joke-actions">
+        {% csrf_token %}
+        <div class="rating">
+            <button onclick="rateJoke({{ joke_of_day.id }}, 'up')" class="up">👍</button>
+            <span id="rating-{{ joke_of_day.id }}">{{ joke_of_day.rating }}</span>
+            <button onclick="rateJoke({{ joke_of_day.id }}, 'down')" class="down">👎</button>
+        </div>
+        <a href="{% url 'jokes:detail' joke_of_day.id %}" class="btn btn-primary">Читать полностью</a>
+    </div>
+</div>
+{% endif %}
+
+<h2>Последние анекдоты</h2>
+
+{% if latest_jokes %}
+    {% for joke in latest_jokes %}
+    <div class="joke-card">
+        <div class="joke-meta">
+            <span class="category-tag">{{ joke.get_category_display }}</span>
+            <span>{{ joke.created_at|date:"d.m.Y H:i" }} | Просмотров: {{ joke.views }}</span>
+        </div>
+        
+        {% if joke.title %}
+            <h3>{{ joke.title }}</h3>
+        {% endif %}
+        
+        <div class="joke-content">{{ joke.get_short_content|linebreaks }}</div>
+        
+        <div class="joke-actions">
+            {% csrf_token %}
+            <div class="rating">
+                <button onclick="rateJoke({{ joke.id }}, 'up')" class="up">👍</button>
+                <span id="rating-{{ joke.id }}">{{ joke.rating }}</span>
+                <button onclick="rateJoke({{ joke.id }}, 'down')" class="down">👎</button>
+            </div>
+            <a href="{% url 'jokes:detail' joke.id %}" class="btn btn-primary">Читать полностью</a>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="joke-card">
+        <p>Пока нет анекдотов. <a href="/admin/">Добавьте первый!</a></p>
+    </div>
+{% endif %}
+
+<div style="text-align: center; margin-top: 2rem;">
+    <a href="{% url 'jokes:list' %}" class="btn btn-primary">Посмотреть все анекдоты</a>
+</div>
+{% endblock %}
