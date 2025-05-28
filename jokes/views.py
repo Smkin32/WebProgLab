@@ -4,7 +4,8 @@ from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.models import User
 from django.contrib import messages
 from .models import Joke
 import random
@@ -111,3 +112,20 @@ def user_logout(request):
     logout(request)
     messages.success(request, 'Вы успешно вышли из системы.')
     return redirect('jokes:home')
+
+def user_register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Аккаунт создан для {username}! Теперь вы можете войти.')
+            login(request, user)
+            return redirect('jokes:home')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+    
+    form = UserCreationForm()
+    return render(request, 'jokes/register.html', {'form': form})
