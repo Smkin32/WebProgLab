@@ -159,6 +159,25 @@ files = [
 pycparser = "*"
 
 [[package]]
+name = "channels"
+version = "4.2.2"
+description = "Brings async, event-driven capabilities to Django."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "channels-4.2.2-py3-none-any.whl", hash = "sha256:ff36a6e1576cacf40bcdc615fa7aece7a709fc4fdd2dc87f2971f4061ffdaa81"},
+    {file = "channels-4.2.2.tar.gz", hash = "sha256:8d7208e48ab8fdb972aaeae8311ce920637d97656ffc7ae5eca4f93f84bcd9a0"},
+]
+
+[package.dependencies]
+asgiref = ">=3.6.0,<4"
+Django = ">=4.2"
+
+[package.extras]
+daphne = ["daphne (>=4.0.0)"]
+tests = ["async-timeout", "coverage (>=4.5,<5.0)", "pytest", "pytest-asyncio", "pytest-django"]
+
+[[package]]
 name = "constantly"
 version = "23.10.4"
 description = "Symbolic constants in Python"
@@ -602,4 +621,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "00e2dcae59246b86dce6af6fdff63f97a9d8d9b965f7c6c4095743e5fdcc9106"
+content-hash = "f57c32edca891793ef33e4368c71c29b5b1c40f20a1a7477fc3980be86e797d8"
