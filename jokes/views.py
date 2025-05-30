@@ -92,19 +92,6 @@ def rate_joke(request, joke_id):
             joke.rating -= 1
         
         joke.save()
-        
-        # Also broadcast via WebSocket as fallback
-        from channels.layers import get_channel_layer
-        from asgiref.sync import async_to_sync
-        
-        channel_layer = get_channel_layer()
-        if channel_layer:
-            async_to_sync(channel_layer.group_send)("ratings", {
-                "type": "rating_update",
-                "joke_id": joke_id,
-                "rating": joke.rating
-            })
-        
         return JsonResponse({'rating': joke.rating})
     
     return JsonResponse({'error': 'Invalid request'})
