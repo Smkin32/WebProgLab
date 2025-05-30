@@ -1,13 +1,15 @@
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter
 from channels.routing import URLRouter
-
-from django.core.asgi import get_asgi_application
 from django.urls import path
 
 
 import os
+import django
+from django.core.asgi import get_asgi_application
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_project.settings')
+django.setup()
 
 from jokes.consumers import YourConsumer
 
