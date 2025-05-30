@@ -1,4 +1,41 @@
 
+// WebSocket connection for real-time rating updates
+let ratingSocket = null;
+
+function initializeWebSocket() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/ratings/`;
+    
+    ratingSocket = new WebSocket(wsUrl);
+    
+    ratingSocket.onopen = function(e) {
+        console.log('WebSocket connection established');
+    };
+    
+    ratingSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        if (data.type === 'rating_update') {
+            updateRatingDisplay(data.joke_id, data.rating);
+        }
+    };
+    
+    ratingSocket.onclose = function(e) {
+        console.log('WebSocket connection closed. Attempting to reconnect...');
+        setTimeout(initializeWebSocket, 3000);
+    };
+    
+    ratingSocket.onerror = function(e) {
+        console.error('WebSocket error:', e);
+    };
+}
+
+function updateRatingDisplay(jokeId, rating) {
+    const ratingElements = document.querySelectorAll(`#rating-${jokeId}`);
+    ratingElements.forEach(element => {
+        element.textContent = rating;
+    });
+}
+
 // Get CSRF token from cookies
 function getCookie(name) {
     let cookieValue = null;
@@ -29,11 +66,8 @@ function rateJoke(jokeId, action) {
     .then(response => response.json())
     .then(data => {
         if (data.rating !== undefined) {
-            // Update all rating displays for this joke across the page
-            const ratingElements = document.querySelectorAll(`#rating-${jokeId}`);
-            ratingElements.forEach(element => {
-                element.textContent = data.rating;
-            });
+            // Update will be handled by WebSocket message
+            console.log('Rating updated successfully');
         }
     })
     .catch(error => {
@@ -64,31 +98,6 @@ function closeRandomJoke() {
     document.getElementById('randomJokeModal').style.display = 'none';
 }
 
-// Update all visible joke ratings every second
-function updateAllRatings() {
-    const ratingElements = document.querySelectorAll('[id^="rating-"]');
-    const jokeIds = Array.from(ratingElements).map(el => el.id.replace('rating-', ''));
-    
-    // Remove duplicates
-    const uniqueJokeIds = [...new Set(jokeIds)];
-    
-    uniqueJokeIds.forEach(jokeId => {
-        fetch(`/joke/${jokeId}/rating/`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.rating !== undefined) {
-                const ratingElems = document.querySelectorAll(`#rating-${jokeId}`);
-                ratingElems.forEach(elem => {
-                    elem.textContent = data.rating;
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error updating rating:', error);
-        });
-    });
-}
-
 // Close modal when clicking outside of it
 window.onclick = function(event) {
     const modal = document.getElementById('randomJokeModal');
@@ -99,6 +108,6 @@ window.onclick = function(event) {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Update ratings every 1 second
-    setInterval(updateAllRatings, 1000);
+    // Initialize WebSocket connection
+    initializeWebSocket();
 });

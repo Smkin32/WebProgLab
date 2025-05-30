@@ -7,6 +7,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib import messages
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 from .models import Joke, ContactMessage
 from .forms import ContactForm
 import random
@@ -92,6 +94,18 @@ def rate_joke(request, joke_id):
             joke.rating -= 1
         
         joke.save()
+        
+        # Broadcast the rating update via WebSocket
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "ratings",
+            {
+                "type": "rating_update",
+                "joke_id": joke_id,
+                "rating": joke.rating,
+            }
+        )
+        
         return JsonResponse({'rating': joke.rating})
     
     return JsonResponse({'error': 'Invalid request'})
