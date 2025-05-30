@@ -9,7 +9,6 @@ from django.urls import path
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_project.settings')
 
-
 from jokes.consumers import YourConsumer
 
 

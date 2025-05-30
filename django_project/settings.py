@@ -32,7 +32,6 @@ CSRF_TRUSTED_ORIGINS = ["https://*.replit.dev", "https://*.replit.app"]
 # Application definition
 
 INSTALLED_APPS = [
-    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'jokes',
+    'channels',
 ]
 
 MIDDLEWARE = [
