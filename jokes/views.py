@@ -19,7 +19,7 @@ def home(request):
     # Get latest jokes
     latest_jokes = Joke.objects.all()[:10]
     # Get random joke of the day
-    joke_of_day = Joke.objects.order_by('?').first() if Joke.objects.exists() else None
+    joke_of_day = Joke.objects.order_by(rating).first() if Joke.objects.exists() else None
     
     context = {
         'latest_jokes': latest_jokes,
