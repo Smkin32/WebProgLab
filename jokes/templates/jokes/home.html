@@ -30,7 +30,7 @@
             <span id="rating-{{ joke_of_day.id }}">{{ joke_of_day.rating }}</span>
             <button onclick="rateJoke({{ joke_of_day.id }}, 'down')" class="down">👎</button>
         </div>
-        <a href="{% url 'jokes:detail' joke_of_day.id %}" class="btn btn-primary">Читать полностью</a>
+        <a href="{% url 'jokes:detail' joke_of_day.id %}" class="btn btn-primary">Раскрыть</a>
     </div>
 </div>
 {% endif %}
